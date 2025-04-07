@@ -4,7 +4,7 @@ use super::commands;
 pub fn register_commands() -> Vec<CreateCommand> {
     vec![
         commands::meta::register(),
-        // commands::mywhitelists::register(),
+        commands::canal::register(),
         // commands::topstaffs::register(),
     ]
 }
