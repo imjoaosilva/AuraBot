@@ -1,6 +1,11 @@
 [package]
-name = "bot"
+name = "aura"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.97"
+dotenv = "0.15.0"
+serenity = "0.12.4"
+sqlx = { version = "*", features = ["runtime-tokio-native-tls", "sqlite"] }
+tokio = { version = "*", features = ["rt-multi-thread"] }
