@@ -1,3 +1,6 @@
+pub mod queries;
+pub mod models;
+
 use sqlx::{migrate::MigrateDatabase, sqlite::{Sqlite, SqlitePool}};
 use anyhow::{Context, Result};
 

@@ -22,7 +22,7 @@ pub async fn run_bot() -> anyhow::Result<()> {
 
     {
         let mut data = client.data.write().await;
-        let repo = bot::models::repository::Repository::new(db);
+        let repo = db::models::repository::Repository::new(db);
         data.insert::<bot::models::client::ClientData>(repo);
     }
 

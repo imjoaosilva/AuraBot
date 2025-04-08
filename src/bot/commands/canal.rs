@@ -9,16 +9,29 @@ use std::env;
 use super::utils;
 
 pub async fn run(ctx: Context, command: CommandInteraction) {
-    let category_env = env::var("INDIVIDUAL_CATEGORY_ID")
-        .expect("❌ - Category ID not found!")
-        .parse()
-        .expect("❌ - Category ID must be an integer");
+    let category_id = match env::var("INDIVIDUAL_CATEGORY_ID")
+        .ok()
+        .and_then(|id| id.parse::<u64>().ok()) {
+            Some(id) => id,
+            None => {
+                eprintln!("❌ - INDIVIDUAL_CATEGORY_ID not found or invalid.");
+                return;
+            }
+        };
+
+    let guild_id = match command.guild_id {
+        Some(id) => id,
+        None => {
+            eprintln!("❌ - Guild ID not found.");
+            return;
+        }
+    }.into();
 
     let permissions = vec![
         PermissionOverwrite {
             allow: Permissions::empty(),
             deny: Permissions::VIEW_CHANNEL,
-            kind: PermissionOverwriteType::Role(RoleId::new(command.guild_id.unwrap().into())),
+            kind: PermissionOverwriteType::Role(RoleId::new(guild_id)),
         },
         PermissionOverwrite {
             allow: Permissions::VIEW_CHANNEL,
@@ -29,14 +42,15 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
 
     let channel = CreateChannel::new(format!("🙋┇{}", command.user.name))
         .permissions(permissions)
-        .category(ChannelId::new(category_env));
+        .category(ChannelId::new(category_id));
 
-    let created_channel = command
-        .guild_id
-        .unwrap()
-        .create_channel(&ctx.http, channel)
-        .await
-        .unwrap();
+    let created_channel = match command.guild_id.unwrap().create_channel(&ctx.http, channel).await {
+        Ok(channel) => channel,
+        Err(err) => {
+            eprintln!("❌ - Failed to create channel: {}", err);
+            return;
+        }
+    };
 
     let embed_description = format!(
         "- Olá <@{}>, o seu novo canal individual foi aberto.\n> Você pode encontrar ele aqui <#{}>.",
@@ -57,21 +71,19 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
 
     let reply_builder = CreateInteractionResponse::Message(reply_data);
 
-    command
-        .create_response(&ctx.http, reply_builder)
-        .await
-        .unwrap();
+    if let Err(err) = command.create_response(&ctx.http, reply_builder).await {
+        eprintln!("❌ - Failed to send response: {}", err);
+    }
 
-    utils::logs::send_log(
-        &ctx,
-        format!(
-            "Canal individual criado com sucesso!\n> Canal: <#{}>\n> Criador: <@{}>",
-            created_channel.id, command.user.id
-        ),
-    )
-    .await;
+    let log_message = format!(
+        "Canal individual criado com sucesso!\n> Canal: <#{}>\n> Criador: <@{}>",
+        created_channel.id, command.user.id
+    );
+
+    utils::logs::send_log(&ctx, log_message).await;
 }
 
 pub fn register() -> CreateCommand {
-    CreateCommand::new("canal").description("Crie o seu canal individual")
+    CreateCommand::new("canal")
+        .description("Crie o seu canal individual")
 }

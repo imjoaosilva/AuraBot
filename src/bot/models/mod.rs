@@ -1,3 +1,4 @@
 pub mod intents;
-pub mod repository;
 pub mod client;
+
+pub use super::db;
