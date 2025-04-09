@@ -6,18 +6,44 @@ use serenity::all::{
 };
 use std::env;
 
+use crate::bot::models::client::ClientData;
+
 use super::utils;
 
 pub async fn run(ctx: Context, command: CommandInteraction) {
     let category_id = match env::var("INDIVIDUAL_CATEGORY_ID")
         .ok()
-        .and_then(|id| id.parse::<u64>().ok()) {
-            Some(id) => id,
-            None => {
-                eprintln!("❌ - INDIVIDUAL_CATEGORY_ID not found or invalid.");
-                return;
+        .and_then(|id| id.parse::<u64>().ok())
+    {
+        Some(id) => id,
+        None => {
+            eprintln!("❌ - INDIVIDUAL_CATEGORY_ID not found or invalid.");
+            return;
+        }
+    };
+
+    let data = ctx.data.read().await;
+    let repo = data.get::<ClientData>().unwrap();
+    let channel = repo.get_user_channel(command.user.id.get()).await;
+
+    if channel.is_ok() {
+        let channel = channel.unwrap();
+        if channel.is_some() {
+            let reply_data = CreateInteractionResponseMessage::new()
+                .content(format!(
+                    "❌ - Você já possui um canal individual aberto <#{}>.",
+                    channel.unwrap()
+                ))
+                .flags(InteractionResponseFlags::EPHEMERAL);
+
+            let reply_builder = CreateInteractionResponse::Message(reply_data);
+
+            if let Err(err) = command.create_response(&ctx.http, reply_builder).await {
+                eprintln!("❌ - Failed to send response: {}", err);
             }
-        };
+            return;
+        }
+    }
 
     let guild_id = match command.guild_id {
         Some(id) => id,
@@ -25,7 +51,8 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
             eprintln!("❌ - Guild ID not found.");
             return;
         }
-    }.into();
+    }
+    .into();
 
     let permissions = vec![
         PermissionOverwrite {
@@ -44,13 +71,23 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
         .permissions(permissions)
         .category(ChannelId::new(category_id));
 
-    let created_channel = match command.guild_id.unwrap().create_channel(&ctx.http, channel).await {
+    let created_channel = match command
+        .guild_id
+        .unwrap()
+        .create_channel(&ctx.http, channel)
+        .await
+    {
         Ok(channel) => channel,
         Err(err) => {
             eprintln!("❌ - Failed to create channel: {}", err);
             return;
         }
     };
+
+    if let Err(err) = repo.create_user_channel(command.user.id.get(), created_channel.id.get()).await {
+        eprintln!("❌ - Failed to create user channel in database: {}", err);
+        return;
+    }
 
     let embed_description = format!(
         "- Olá <@{}>, o seu novo canal individual foi aberto.\n> Você pode encontrar ele aqui <#{}>.",
@@ -84,6 +121,5 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
 }
 
 pub fn register() -> CreateCommand {
-    CreateCommand::new("canal")
-        .description("Crie o seu canal individual")
+    CreateCommand::new("canal").description("Crie o seu canal individual")
 }
