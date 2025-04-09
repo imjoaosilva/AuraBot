@@ -1,5 +1,5 @@
-use serenity::prelude::TypeMapKey;
 use super::db::models::repository::Repository;
+use serenity::prelude::TypeMapKey;
 
 pub struct ClientData;
 

@@ -8,17 +8,23 @@ use std::env;
 pub async fn run(ctx: Context, command: CommandInteraction) {
     let channel_id = match env::var("ANONYMOUS_CHANNEL_ID")
         .ok()
-        .and_then(|id| id.parse::<u64>().ok()) {
-            Some(id) => id,
-            None => {
-                eprintln!("❌ - ANONYMOUS_CHANNEL_ID not found or invalid.");
-                return;
-            }
-        };
+        .and_then(|id| id.parse::<u64>().ok())
+    {
+        Some(id) => id,
+        None => {
+            eprintln!("❌ - ANONYMOUS_CHANNEL_ID not found or invalid.");
+            return;
+        }
+    };
 
     let channel = ChannelId::new(channel_id);
 
-    let Some(user_message) = command.data.options.first().and_then(|opt| opt.value.as_str()) else {
+    let Some(user_message) = command
+        .data
+        .options
+        .first()
+        .and_then(|opt| opt.value.as_str())
+    else {
         eprintln!("❌ - Missing or invalid message option.");
         return;
     };
@@ -51,12 +57,10 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
 pub fn register() -> CreateCommand {
     CreateCommand::new("anonimo")
         .description("Envie uma mensagem anónima")
-        .set_options(vec![
-            CreateCommandOption::new(
-                CommandOptionType::String,
-                "mensagem",
-                "Mande uma mensagem anónima.",
-            )
-            .required(true),
-        ])
+        .set_options(vec![CreateCommandOption::new(
+            CommandOptionType::String,
+            "mensagem",
+            "Mande uma mensagem anónima.",
+        )
+        .required(true)])
 }

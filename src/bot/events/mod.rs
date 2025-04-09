@@ -1,4 +1,4 @@
-pub use super::{ handlers, commands };
+pub use super::{commands, handlers};
 
-pub mod ready;
 pub mod interaction_create;
+pub mod ready;

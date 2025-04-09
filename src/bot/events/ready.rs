@@ -1,6 +1,6 @@
+use super::handlers::command::register_commands;
 use serenity::all::{Context, GuildId};
 use std::env;
-use super::handlers::command::register_commands;
 
 pub async fn run(ctx: Context, ready: serenity::all::Ready) {
     let guild_id = env::var("GUILD_ID")
@@ -10,14 +10,10 @@ pub async fn run(ctx: Context, ready: serenity::all::Ready) {
 
     let guild = GuildId::new(guild_id);
 
-    match guild
-        .set_commands(&ctx.http, register_commands())
-        .await
-    {
+    match guild.set_commands(&ctx.http, register_commands()).await {
         Ok(list) => println!("☑️  - {} Commands loaded!", list.len()),
         Err(_) => println!("❌ - Unable to load commands!"),
     };
-
 
     println!("✅ - {} started successfully!", ready.user.name);
 }

@@ -1,5 +1,5 @@
-use serenity::all::CreateCommand;
 use super::commands;
+use serenity::all::CreateCommand;
 
 pub fn register_commands() -> Vec<CreateCommand> {
     vec![

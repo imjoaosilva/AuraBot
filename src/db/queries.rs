@@ -11,7 +11,11 @@ impl Repository {
         Ok(result.map(|r| r.channel_id.parse::<u64>().ok()).flatten())
     }
 
-    pub async fn create_user_channel(&self, user_id: u64, channel_id: u64) -> Result<(), sqlx::Error> {
+    pub async fn create_user_channel(
+        &self,
+        user_id: u64,
+        channel_id: u64,
+    ) -> Result<(), sqlx::Error> {
         let user_id = user_id.to_string();
         let channel_id = channel_id.to_string();
         query!(

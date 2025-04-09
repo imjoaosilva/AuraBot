@@ -84,7 +84,10 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
         }
     };
 
-    if let Err(err) = repo.create_user_channel(command.user.id.get(), created_channel.id.get()).await {
+    if let Err(err) = repo
+        .create_user_channel(command.user.id.get(), created_channel.id.get())
+        .await
+    {
         eprintln!("❌ - Failed to create user channel in database: {}", err);
         return;
     }

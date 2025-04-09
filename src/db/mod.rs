@@ -1,9 +1,12 @@
-pub mod queries;
 pub mod models;
+pub mod queries;
 pub use models::repository::Repository;
 
-use sqlx::{migrate::MigrateDatabase, sqlite::{Sqlite, SqlitePool}};
 use anyhow::{Context, Result};
+use sqlx::{
+    migrate::MigrateDatabase,
+    sqlite::{Sqlite, SqlitePool},
+};
 
 pub async fn init_db(database_url: &str) -> Result<SqlitePool> {
     if !Sqlite::database_exists(&database_url)
