@@ -3,21 +3,17 @@ use serenity::all::{
     CreateCommandOption, CreateEmbed, CreateInteractionResponse, CreateInteractionResponseMessage,
     CreateMessage, InteractionResponseFlags, Timestamp,
 };
-use std::env;
+
+use super::models::client::ClientData;
 
 pub async fn run(ctx: Context, command: CommandInteraction) {
-    let channel_id = match env::var("ANONYMOUS_CHANNEL_ID")
-        .ok()
-        .and_then(|id| id.parse::<u64>().ok())
-    {
-        Some(id) => id,
-        None => {
-            eprintln!("❌ - ANONYMOUS_CHANNEL_ID not found or invalid.");
-            return;
-        }
-    };
+    let data = ctx.data.read().await;
+    let repo = data.get::<ClientData>().unwrap();
 
-    let channel = ChannelId::new(channel_id);
+    let Ok(channels) = repo.get_channels().await else {
+        eprintln!("❌ - Falha ao obter os canais.");
+        return;
+    };
 
     let Some(user_message) = command
         .data
@@ -36,22 +32,25 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
 
     let builder = CreateMessage::default().add_embed(embed);
 
-    if let Err(err) = channel.send_message(&ctx.http, builder).await {
-        eprintln!("❌ - Failed to send anonymous message: {}", err);
+    if let Err(err) = ChannelId::new(channels.anonymous_channel_id)
+        .send_message(&ctx.http, builder)
+        .await
+    {
+        eprintln!("❌ - Falha ao enviar mensagem anónima: {}", err);
         return;
     }
 
-    let confirmation = CreateEmbed::default()
-        .description("A sua mensagem foi enviada com sucesso!")
-        .colour(Colour::LIGHT_GREY);
-
-    let reply_data = CreateInteractionResponseMessage::new()
-        .add_embed(confirmation)
+    let reply = CreateInteractionResponseMessage::new()
+        .add_embed(
+            CreateEmbed::default()
+                .description("A sua mensagem foi enviada com sucesso!")
+                .colour(Colour::LIGHT_GREY),
+        )
         .flags(InteractionResponseFlags::EPHEMERAL);
 
-    let reply_builder = CreateInteractionResponse::Message(reply_data);
-
-    let _ = command.create_response(&ctx.http, reply_builder).await;
+    let _ = command
+        .create_response(&ctx.http, CreateInteractionResponse::Message(reply))
+        .await;
 }
 
 pub fn register() -> CreateCommand {

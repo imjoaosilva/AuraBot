@@ -10,6 +10,7 @@ pub async fn run(ctx: Context, interaction: Interaction) {
             "canal" => commands::canal::run(ctx, command).await,
             "anonimo" => commands::anonimo::run(ctx, command).await,
             "setmeta" => commands::setmeta::run(ctx, command).await,
+            "setcanais" => commands::setcanais::run(ctx, command).await,
             _ => println!("❌ - Command not found!"),
         }
     }
