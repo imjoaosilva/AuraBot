@@ -1,7 +1,5 @@
 use serenity::all::{
-    Colour, CommandInteraction, CommandOptionType, Context, CreateCommand, CreateCommandOption,
-    CreateEmbed, CreateInteractionResponse, CreateInteractionResponseMessage,
-    InteractionResponseFlags, Timestamp,
+    Colour, CommandInteraction, CommandOptionType, Context, CreateCommand, CreateCommandOption, CreateEmbed, CreateInteractionResponse, CreateInteractionResponseMessage, InteractionResponseFlags, Permissions, Timestamp
 };
 
 use super::models::client::ClientData;
@@ -74,4 +72,5 @@ pub fn register() -> CreateCommand {
             )
             .required(true),
         ])
+        .default_member_permissions(Permissions::ADMINISTRATOR)
 }

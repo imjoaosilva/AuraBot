@@ -3,7 +3,8 @@ use super::utils;
 use serenity::all::{
     ChannelId, Colour, CommandInteraction, CommandOptionType, Context, CreateAllowedMentions,
     CreateCommand, CreateCommandOption, CreateEmbed, CreateEmbedFooter, CreateInteractionResponse,
-    CreateInteractionResponseMessage, CreateMessage, InteractionResponseFlags, Timestamp,
+    CreateInteractionResponseMessage, CreateMessage, InteractionResponseFlags, Permissions,
+    Timestamp,
 };
 
 pub async fn run(ctx: Context, command: CommandInteraction) {
@@ -109,4 +110,5 @@ pub fn register() -> CreateCommand {
             "A quantidade de dinheiro sujo (ex: 1000000).",
         )
         .required(true)])
+        .default_member_permissions(Permissions::ADMINISTRATOR)
 }
