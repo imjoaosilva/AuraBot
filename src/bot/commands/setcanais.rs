@@ -16,14 +16,18 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
     let data = ctx.data.read().await;
     let repo = data.get::<ClientData>().unwrap();
 
-    repo.set_channels(
-        individual_channel_id.get(),
-        anonimo_channel_id.get(),
-        meta_channel_id.get(),
-        logs_channel_id.get(),
-    )
-    .await
-    .expect("❌ - Failed to set channels");
+    if let Err(err) = repo
+        .set_channels(
+            individual_channel_id.get(),
+            anonimo_channel_id.get(),
+            meta_channel_id.get(),
+            logs_channel_id.get(),
+        )
+        .await
+    {
+        eprintln!("❌ - Failed to set channels: {}", err);
+        return;
+    }
 
     let embed = CreateEmbed::default()
         .description("Canais definidos com sucesso!")
