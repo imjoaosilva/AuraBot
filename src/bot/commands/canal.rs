@@ -6,8 +6,7 @@ use serenity::all::{
 };
 use std::env;
 
-use crate::bot::models::client::ClientData;
-
+use super::models::client::ClientData;
 use super::utils;
 
 pub async fn run(ctx: Context, command: CommandInteraction) {
