@@ -1,3 +1,5 @@
+use crate::bot::utils;
+
 use super::models::{goal::Goal, repository::Repository};
 use sqlx::query;
 
@@ -70,5 +72,78 @@ impl Repository {
         .await?;
 
         Ok(())
+    }
+
+    pub async fn get_user_meta_by_message_id(&self, message_id: u64) -> Result<Goal, sqlx::Error> {
+        let message_id = message_id.to_string();
+
+        let result = query!("SELECT * FROM goals WHERE message_id = ?", message_id)
+            .fetch_one(&self.db)
+            .await?;
+
+        let goal = Goal {
+            id: result.id,
+            user_id: result.discord_id,
+            amount: result.amount,
+            message_id: result.message_id,
+            created_at: result.created_at,
+            status: result.status,
+        };
+
+        Ok(goal)
+    }
+
+    pub async fn update_meta_status(
+        &self,
+        message_id: u64,
+        status: String,
+    ) -> Result<(), sqlx::Error> {
+        let message_id = message_id.to_string();
+        query!(
+            "UPDATE goals SET status = ? WHERE message_id = ?",
+            status,
+            message_id
+        )
+        .execute(&self.db)
+        .await?;
+
+        Ok(())
+    }
+
+    pub async fn get_approved_metas_from_current_week(&self) -> Result<Vec<Goal>, sqlx::Error> {
+        let start = utils::get_last_monday_at_18()
+            .naive_utc()
+            .format("%Y-%m-%d %H:%M:%S")
+            .to_string();
+        let end = utils::get_next_monday_at_18()
+            .naive_utc()
+            .format("%Y-%m-%d %H:%M:%S")
+            .to_string();
+
+        let rows = sqlx::query!(
+            r#"
+            SELECT id, discord_id, amount, created_at, status, message_id
+            FROM goals
+            WHERE status = 'Approved'
+              AND datetime(created_at) >= datetime(?)
+              AND datetime(created_at) < datetime(?)
+            "#,
+            start,
+            end
+        )
+        .fetch_all(&self.db)
+        .await?;
+
+        Ok(rows
+            .into_iter()
+            .map(|row| Goal {
+                id: row.id,
+                user_id: row.discord_id,
+                amount: row.amount,
+                created_at: row.created_at,
+                status: row.status,
+                message_id: row.message_id,
+            })
+            .collect())
     }
 }

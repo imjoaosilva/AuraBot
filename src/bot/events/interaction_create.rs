@@ -18,5 +18,11 @@ pub async fn run(ctx: Context, interaction: Interaction) {
             "goal" => components::modal_goal::run(ctx, interaction).await,
             _ => println!("❌ - Modal not found!"),
         }
+    } else if let Interaction::Component(interaction) = interaction {
+        match interaction.data.custom_id.as_str() {
+            "aprove" => components::button_aprove::run(ctx, interaction).await,
+            "deny" => components::button_deny::run(ctx, interaction).await,
+            _ => println!("❌ - Button not found!"),
+        }
     }
 }

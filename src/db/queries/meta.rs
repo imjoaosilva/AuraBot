@@ -22,4 +22,12 @@ impl Repository {
 
         Ok(())
     }
+
+    pub async fn get_meta(&self) -> Result<i64, sqlx::Error> {
+        let result = query!("SELECT goal FROM current_goal")
+            .fetch_one(&self.db)
+            .await?;
+
+        Ok(result.goal)
+    }
 }

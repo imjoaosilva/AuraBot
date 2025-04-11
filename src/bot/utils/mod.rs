@@ -29,3 +29,23 @@ pub fn get_next_monday_at_18() -> chrono::DateTime<Utc> {
         .with_second(0)
         .expect("Erro ao definir os segundos para 0")
 }
+
+pub fn get_last_monday_at_18() -> chrono::DateTime<Utc> {
+    use chrono::{Datelike, Duration, Timelike, Utc};
+
+    let now = Utc::now();
+    let weekday = now.weekday().num_days_from_sunday();
+
+    let days_since_monday = if weekday == 0 { 6 } else { weekday as i64 - 1 };
+    let last_monday = now
+        .checked_sub_signed(Duration::days(days_since_monday))
+        .unwrap()
+        .with_hour(18)
+        .unwrap()
+        .with_minute(0)
+        .unwrap()
+        .with_second(0)
+        .unwrap();
+
+    last_monday
+}
