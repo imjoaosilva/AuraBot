@@ -7,8 +7,8 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
     let value_input = CreateInputText::new(InputTextStyle::Short, "Valor Entregue", "value")
         .placeholder("Digite a quantidade entegue");
 
-    let who_input = CreateInputText::new(InputTextStyle::Short, "Quem entregou", "who")
-        .placeholder("Digite a quem entregadou");
+    let who_input = CreateInputText::new(InputTextStyle::Short, "A quem entregou", "who")
+        .placeholder("Digite a quem entregou");
 
     let value_i_component = CreateActionRow::InputText(value_input);
     let who_i_component = CreateActionRow::InputText(who_input);

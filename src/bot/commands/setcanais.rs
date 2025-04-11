@@ -1,5 +1,7 @@
 use serenity::all::{
-    Colour, CommandInteraction, CommandOptionType, Context, CreateCommand, CreateCommandOption, CreateEmbed, CreateInteractionResponse, CreateInteractionResponseMessage, InteractionResponseFlags, Permissions, Timestamp
+    Colour, CommandInteraction, CommandOptionType, Context, CreateCommand, CreateCommandOption,
+    CreateEmbed, CreateInteractionResponse, CreateInteractionResponseMessage,
+    InteractionResponseFlags, Permissions, Timestamp,
 };
 
 use super::models::client::ClientData;
@@ -10,6 +12,7 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
     let anonimo_channel_id = options[1].value.as_channel_id().unwrap();
     let meta_channel_id = options[2].value.as_channel_id().unwrap();
     let logs_channel_id = options[3].value.as_channel_id().unwrap();
+    let approval_channel_id = options[4].value.as_channel_id().unwrap();
 
     let data = ctx.data.read().await;
     let repo = data.get::<ClientData>().unwrap();
@@ -20,6 +23,7 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
             anonimo_channel_id.get(),
             meta_channel_id.get(),
             logs_channel_id.get(),
+            approval_channel_id.get(),
         )
         .await
     {
@@ -28,8 +32,22 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
     }
 
     let embed = CreateEmbed::default()
-        .description("Canais definidos com sucesso!")
-        .colour(Colour::LIGHT_GREY)
+        .title("✅ Configuração Concluída!")
+        .description(format!(
+            "Os canais foram configurados com sucesso!\n\n\
+         **Canais Definidos:**\n\
+         💬 **Individual:** <#{}>\n\
+         🤫 **Anônimo:** <#{}>\n\
+         📊 **Meta:** <#{}>\n\
+         📑 **Logs:** <#{}>\n\
+         ✅ **Aprovação:** <#{}>",
+            individual_channel_id.get(),
+            anonimo_channel_id.get(),
+            meta_channel_id.get(),
+            logs_channel_id.get(),
+            approval_channel_id.get()
+        ))
+        .colour(Colour::from_rgb(144, 238, 144))
         .timestamp(Timestamp::now());
 
     let reply_data = CreateInteractionResponseMessage::new()
@@ -69,6 +87,12 @@ pub fn register() -> CreateCommand {
                 CommandOptionType::Channel,
                 "logs",
                 "Canal para receber logs",
+            )
+            .required(true),
+            CreateCommandOption::new(
+                CommandOptionType::Channel,
+                "approval",
+                "Canal para aprovações",
             )
             .required(true),
         ])
