@@ -10,10 +10,10 @@ pub async fn run(ctx: Context, interaction: Interaction) {
             "anonimo" => commands::anonimo::run(ctx, command).await,
             "setmeta" => commands::setmeta::run(ctx, command).await,
             "setcanais" => commands::setcanais::run(ctx, command).await,
+            "definircanal" => commands::definircanal::run(ctx, command).await,
             _ => println!("❌ - Command not found!"),
         }
-    }
-    else if let Interaction::Modal(interaction) = interaction {
+    } else if let Interaction::Modal(interaction) = interaction {
         match interaction.data.custom_id.as_str() {
             "goal" => components::modal_goal::run(ctx, interaction).await,
             _ => println!("❌ - Modal not found!"),

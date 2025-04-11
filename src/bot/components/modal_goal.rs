@@ -1,4 +1,4 @@
-use super::models::client::ClientData;
+use super::{models::client::ClientData, utils};
 use serenity::all::{
     ActionRow, ActionRowComponent, ButtonStyle, ChannelId, Colour, Context, CreateActionRow,
     CreateButton, CreateEmbed, CreateInteractionResponse, CreateInteractionResponseMessage,
@@ -59,7 +59,8 @@ pub async fn run(ctx: Context, interaction: ModalInteraction) {
             👤 **Responsável:** `{}`\n\
             💰 **Valor da Meta:** `{}`\n\n\
             Por favor, avalie e processe este pedido com atenção. ✅",
-                responsible, value
+                responsible,
+                utils::format_amount(value as u64)
             ))
             .timestamp(Timestamp::now());
 
