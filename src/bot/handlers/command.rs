@@ -6,8 +6,9 @@ pub fn register_commands() -> Vec<CreateCommand> {
         commands::meta::register(),
         commands::canal::register(),
         commands::anonimo::register(),
-        commands::setmeta::register(),
-        commands::setcanais::register(),
+        commands::definirmeta::register(),
+        commands::definircanais::register(),
         commands::definircanal::register(),
+        commands::info::register(),
     ]
 }

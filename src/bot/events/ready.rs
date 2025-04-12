@@ -1,5 +1,6 @@
-use super::handlers::command::register_commands;
+use super::{handlers::command::register_commands, scheduler};
 use serenity::all::{Context, GuildId};
+use serenity::model::application::Command;
 use std::env;
 
 pub async fn run(ctx: Context, ready: serenity::all::Ready) {
@@ -15,5 +16,12 @@ pub async fn run(ctx: Context, ready: serenity::all::Ready) {
         Err(_) => println!("❌ - Unable to load commands!"),
     };
 
+    match Command::set_global_commands(&ctx.http, vec![]).await {
+        Ok(list) => println!("☑️  - {} Global  Commands loaded!", list.len()),
+        Err(_) => println!("❌ - Unable to load commands!"),
+    };
+
     println!("✅ - {} started successfully!", ready.user.name);
+
+    scheduler::reminder::setup_cron_jobs(ctx.clone().into()).await;
 }

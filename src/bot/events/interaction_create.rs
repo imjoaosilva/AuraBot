@@ -8,9 +8,10 @@ pub async fn run(ctx: Context, interaction: Interaction) {
             "meta" => commands::meta::run(ctx, command).await,
             "canal" => commands::canal::run(ctx, command).await,
             "anonimo" => commands::anonimo::run(ctx, command).await,
-            "setmeta" => commands::setmeta::run(ctx, command).await,
-            "setcanais" => commands::setcanais::run(ctx, command).await,
+            "setmeta" => commands::definirmeta::run(ctx, command).await,
+            "setcanais" => commands::definircanais::run(ctx, command).await,
             "definircanal" => commands::definircanal::run(ctx, command).await,
+            "info" => commands::info::run(ctx, command).await,
             _ => println!("❌ - Command not found!"),
         }
     } else if let Interaction::Modal(interaction) = interaction {

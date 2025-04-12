@@ -6,3 +6,4 @@ pub mod models;
 pub mod utils;
 
 pub use super::db;
+pub use super::scheduler;

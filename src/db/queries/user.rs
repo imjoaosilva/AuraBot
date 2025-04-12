@@ -13,6 +13,21 @@ impl Repository {
         Ok(result.map(|r| r.channel_id.parse::<u64>().ok()).flatten())
     }
 
+    pub async fn get_all_user_channels(&self) -> Result<Vec<(u64, u64)>, sqlx::Error> {
+        let rows = query!("SELECT discord_id, channel_id FROM users")
+            .fetch_all(&self.db)
+            .await?;
+
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| {
+                let user_id = row.discord_id as u64;
+                let channel_id = row.channel_id.parse::<u64>().ok()?;
+                Some((user_id, channel_id))
+            })
+            .collect())
+    }
+
     pub async fn create_user_channel(
         &self,
         user_id: u64,
@@ -110,12 +125,15 @@ impl Repository {
         Ok(())
     }
 
-    pub async fn get_approved_metas_from_current_week(&self) -> Result<Vec<Goal>, sqlx::Error> {
+    pub async fn get_user_approved_weekly(&self, user_id: i64) -> Result<Vec<Goal>, sqlx::Error> {
         let start = utils::get_last_monday_at_18()
+            .with_timezone(&chrono_tz::America::Sao_Paulo)
             .naive_utc()
             .format("%Y-%m-%d %H:%M:%S")
             .to_string();
+
         let end = utils::get_next_monday_at_18()
+            .with_timezone(&chrono_tz::America::Sao_Paulo)
             .naive_utc()
             .format("%Y-%m-%d %H:%M:%S")
             .to_string();
@@ -127,9 +145,11 @@ impl Repository {
             WHERE status = 'Approved'
               AND datetime(created_at) >= datetime(?)
               AND datetime(created_at) < datetime(?)
+              AND discord_id = ?
             "#,
             start,
-            end
+            end,
+            user_id
         )
         .fetch_all(&self.db)
         .await?;

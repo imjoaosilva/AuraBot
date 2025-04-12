@@ -62,7 +62,7 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
 }
 
 pub fn register() -> CreateCommand {
-    CreateCommand::new("setcanais")
+    CreateCommand::new("definircanais")
         .description("Defina os canais do bot")
         .set_options(vec![
             CreateCommandOption::new(

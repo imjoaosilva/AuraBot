@@ -6,7 +6,9 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.97"
 chrono = "0.4.40"
+chrono-tz = "0.10.3"
 dotenv = "0.15.0"
 serenity = "0.12.4"
 sqlx = { version = "*", features = ["runtime-tokio-native-tls", "sqlite"] }
 tokio = { version = "*", features = ["rt-multi-thread"] }
+tokio-cron-scheduler = "0.13.0"

@@ -1,5 +1,6 @@
 pub mod bot;
 pub mod db;
+pub mod scheduler;
 
 use anyhow::Context;
 use serenity::Client;

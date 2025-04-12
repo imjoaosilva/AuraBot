@@ -102,7 +102,7 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
 }
 
 pub fn register() -> CreateCommand {
-    CreateCommand::new("setmeta")
+    CreateCommand::new("definirmeta")
         .description("Defina a meta semanal de dinheiro sujo")
         .set_options(vec![CreateCommandOption::new(
             CommandOptionType::Integer,
