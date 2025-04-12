@@ -50,15 +50,23 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
             deny: Permissions::SEND_TTS_MESSAGES,
             kind: PermissionOverwriteType::Member(command.user.id),
         },
+        PermissionOverwrite {
+            allow: Permissions::VIEW_CHANNEL | Permissions::MANAGE_CHANNELS,
+            deny: Permissions::empty(),
+            kind: PermissionOverwriteType::Member(ctx.cache.current_user().id),
+        },
     ];
 
     let channel = CreateChannel::new(format!("🙋┇{}", command.user.name))
         .permissions(permissions)
         .category(ChannelId::new(channels.individuals_category_id));
 
-    let Ok(created_channel) = guild_id.create_channel(&ctx.http, channel).await else {
-        eprintln!("❌ - Failed to create channel.");
-        return;
+    let created_channel = match guild_id.create_channel(&ctx.http, channel).await {
+        Ok(channel) => channel,
+        Err(err) => {
+            eprintln!("❌ - Failed to create channel: {}", err);
+            return;
+        }
     };
 
     if let Err(err) = repo
@@ -94,7 +102,7 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
             "Canal individual criado com sucesso!\n> Canal: <#{}>\n> Criador: <@{}>",
             created_channel.id, command.user.id
         ),
-        channels.logs_channel_id
+        channels.logs_channel_id,
     )
     .await;
 }

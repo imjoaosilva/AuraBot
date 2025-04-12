@@ -56,9 +56,11 @@ pub async fn run(ctx: Context, interaction: ModalInteraction) {
             .title("📊 Pedido de Entrega de Meta")
             .description(format!(
                 "🚀 **Novo Pedido de Meta Recebido!**\n\n\
+            👤 **Usuário:** <@{}>\n\
             👤 **Responsável:** `{}`\n\
             💰 **Valor da Meta:** `{}`\n\n\
             Por favor, avalie e processe este pedido com atenção. ✅",
+                interaction.user.id.get(),
                 responsible,
                 utils::format_amount(value as u64)
             ))
