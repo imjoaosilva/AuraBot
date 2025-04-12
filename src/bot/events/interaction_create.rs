@@ -20,8 +20,8 @@ pub async fn run(ctx: Context, interaction: Interaction) {
         }
     } else if let Interaction::Component(interaction) = interaction {
         match interaction.data.custom_id.as_str() {
-            "aprove" => components::button_aprove::run(ctx, interaction).await,
-            "deny" => components::button_deny::run(ctx, interaction).await,
+            "aprove" => components::buttons_meta::run(ctx, interaction, "Approved").await,
+            "deny" => components::buttons_meta::run(ctx, interaction, "Rejected").await,
             _ => println!("❌ - Button not found!"),
         }
     }
