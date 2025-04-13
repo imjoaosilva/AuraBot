@@ -16,7 +16,7 @@ pub async fn run(ctx: Context, interaction: ModalInteraction) {
     };
 
     let Ok(channels) = repo.get_channels().await else {
-        eprintln!("❌ - Falha ao obter os canais.");
+        eprintln!("❌ - Error getting channels.");
         return;
     };
 

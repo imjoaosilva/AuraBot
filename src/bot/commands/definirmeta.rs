@@ -12,7 +12,7 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
     let repo = data.get::<ClientData>().unwrap();
 
     let Ok(channels) = repo.get_channels().await else {
-        eprintln!("❌ - Falha ao obter os canais.");
+        eprintln!("❌ - Error getting channels.");
         return;
     };
 

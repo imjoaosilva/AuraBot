@@ -2,8 +2,9 @@ use super::models::client::ClientData;
 use super::utils;
 use chrono_tz::America::Sao_Paulo;
 use serenity::all::{
-    Colour, CommandInteraction, Context, CreateCommand, CreateEmbed, CreateEmbedFooter, CreateInteractionResponse,
-    CreateInteractionResponseMessage, InteractionResponseFlags, Timestamp,
+    Colour, CommandInteraction, Context, CreateCommand, CreateEmbed, CreateEmbedFooter,
+    CreateInteractionResponse, CreateInteractionResponseMessage, InteractionResponseFlags,
+    Timestamp,
 };
 
 pub async fn run(ctx: Context, command: CommandInteraction) {
@@ -34,7 +35,9 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
             📅 **Data de entrega:** <t:{}:R>",
             utils::format_amount(current_meta as u64),
             utils::format_amount(total as u64),
-            utils::get_next_monday_at_18().with_timezone(&Sao_Paulo).timestamp()
+            utils::get_next_monday_at_18()
+                .with_timezone(&Sao_Paulo)
+                .timestamp()
         ))
         .footer(CreateEmbedFooter::new("Meta Semanal"))
         .timestamp(Timestamp::now());

@@ -16,7 +16,8 @@ pub async fn setup_cron_jobs(ctx: Arc<Context>) {
     let job = JobBuilder::new()
         .with_timezone(Sao_Paulo)
         .with_cron_job_type()
-        .with_schedule("0 0 18 * * Sun,Sat")
+        // .with_schedule("0 0 18 * * Sun,Sat")
+        .with_schedule("0 16 15 * * *")
         .unwrap()
         .with_run_async(Box::new(move |_uuid, _l| {
             let ctx = ctx_clone_1.clone();
@@ -34,7 +35,8 @@ pub async fn setup_cron_jobs(ctx: Arc<Context>) {
     let job02 = JobBuilder::new()
         .with_timezone(Sao_Paulo)
         .with_cron_job_type()
-        .with_schedule("0 47 19 * * Mon")
+        // .with_schedule("0 47 19 * * Mon")
+        .with_schedule("0 16 15 * * *")
         .unwrap()
         .with_run_async(Box::new(move |_uuid, _l| {
             let ctx = ctx_clone_2.clone();
@@ -96,26 +98,65 @@ pub async fn setup_cron_jobs(ctx: Arc<Context>) {
 
                 leaderboard_data.sort_by(|a, b| b.1.cmp(&a.1));
 
-                let mut message = String::from("```ini\n[📊 LEADERBOARD - Semana Atual]\n```\n\n");
+                let mut completos: Vec<String> = Vec::new();
+                let mut incompletos: Vec<String> = Vec::new();
+                let mut sem_entrega: Vec<String> = Vec::new();
 
-                for (i, (username, value)) in leaderboard_data.iter().enumerate() {
-                    let pos = format!("{:>2}", i + 1);
-                    let formatted_value = utils::format_amount(*value as u64);
+                let mut i = 1;
+
+                for (username, value) in leaderboard_data {
+                    let pos = format!("{:>2}", i);
+                    let formatted_value = utils::format_amount(value as u64);
                     let username = format!("{: <20}", username);
 
-                    let line = if *value >= current_meta {
-                        format!("```diff\n+ {pos}. {username} | ✅ R$ {formatted_value} sujo\n```")
-                    } else if *value > 0 {
-                        format!("```ansi\n[2;33m! {pos}. {username} | ⚠️ R$ {formatted_value} sujo[0m\n```")
+                    if value >= current_meta {
+                        completos.push(format!(
+                            "+ {pos}. {username} | ✅ R$ {formatted_value} sujo"
+                        ));
+                    } else if value > 0 {
+                        incompletos.push(format!(
+                            "[2;33m! {pos}. {username} | ⚠️ R$ {formatted_value} sujo[0m"
+                        ));
                     } else {
-                        format!("```diff\n- {pos}. {username} | ❌ R$ 0 sujo\n```")
-                    };
+                        sem_entrega.push(format!("- {pos}. {username} | ❌ R$ 0 sujo"));
+                    }
 
-                    message.push_str(&line);
+                    i += 1;
+                }
+
+                let mut message = String::from("```ini\n[📊 LEADERBOARD - Semana Atual]\n```\n\n");
+
+                if !completos.is_empty() {
+                    message.push_str("```diff\n");
+                    for line in &completos {
+                        message.push_str(line);
+                        message.push('\n');
+                    }
+
+                    message.push_str("```\n");
+                }
+
+                if !incompletos.is_empty() {
+                    message.push_str("```ansi\n");
+                    for line in &incompletos {
+                        message.push_str(line);
+                        message.push('\n');
+                    }
+
+                    message.push_str("```\n");
+                }
+
+                if !sem_entrega.is_empty() {
+                    message.push_str("```diff\n");
+                    for line in &sem_entrega {
+                        message.push_str(line);
+                        message.push('\n');
+                    }
+                    message.push_str("```\n");
                 }
 
                 message.push_str(&format!(
-                    "\n```ini\n[💰 TOTAL GERAL: R$ {} ({})]\n```",
+                    "```ini\n[💰 TOTAL GERAL: R$ {} ({})]\n```",
                     utils::format_amount(total as u64),
                     total
                 ));
@@ -205,8 +246,8 @@ async fn send_message(
 ) -> Result<(), serenity::Error> {
     let content = format!(
         "<@{}> Você foi **AVISADO**. Faltam **{} dias** para o fim do prazo de entrega e falta `{}` a ser entregue.",
-        days,
         user_id,
+        days,
         if total as i64 > current_meta {
             String::from("0")
         } else {

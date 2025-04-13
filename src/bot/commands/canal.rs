@@ -35,7 +35,7 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
     };
 
     let Ok(channels) = repo.get_channels().await else {
-        eprintln!("❌ - Falha ao obter os canais.");
+        eprintln!("❌ - Error getting channels.");
         return;
     };
 
