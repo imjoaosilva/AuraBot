@@ -16,8 +16,7 @@ pub async fn setup_cron_jobs(ctx: Arc<Context>) {
     let job = JobBuilder::new()
         .with_timezone(Sao_Paulo)
         .with_cron_job_type()
-        // .with_schedule("0 0 18 * * Sun,Sat")
-        .with_schedule("0 16 15 * * *")
+        .with_schedule("0 0 18 * * Sun,Sat")
         .unwrap()
         .with_run_async(Box::new(move |_uuid, _l| {
             let ctx = ctx_clone_1.clone();
@@ -35,8 +34,7 @@ pub async fn setup_cron_jobs(ctx: Arc<Context>) {
     let job02 = JobBuilder::new()
         .with_timezone(Sao_Paulo)
         .with_cron_job_type()
-        // .with_schedule("0 47 19 * * Mon")
-        .with_schedule("0 16 15 * * *")
+        .with_schedule("0 47 19 * * Mon")
         .unwrap()
         .with_run_async(Box::new(move |_uuid, _l| {
             let ctx = ctx_clone_2.clone();
