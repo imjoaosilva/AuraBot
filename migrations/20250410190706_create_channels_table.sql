@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS channels (
     meta_channel_id INTEGER NOT NULL,
     anonymous_channel_id INTEGER NOT NULL,
     individuals_category_id INTEGER NOT NULL,
-    approval_channel_id INTEGER NOT NULL
+    approval_channel_id INTEGER NOT NULL,
+    results_channel_id INTEGER NOT NULL
 );

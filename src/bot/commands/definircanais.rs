@@ -13,6 +13,7 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
     let meta_channel_id = options[2].value.as_channel_id().unwrap();
     let logs_channel_id = options[3].value.as_channel_id().unwrap();
     let approval_channel_id = options[4].value.as_channel_id().unwrap();
+    let resultadometa_channel_id = options[5].value.as_channel_id().unwrap();
 
     let data = ctx.data.read().await;
     let repo = data.get::<ClientData>().unwrap();
@@ -24,6 +25,7 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
             meta_channel_id.get(),
             logs_channel_id.get(),
             approval_channel_id.get(),
+            resultadometa_channel_id.get(),
         )
         .await
     {
@@ -40,12 +42,14 @@ pub async fn run(ctx: Context, command: CommandInteraction) {
          🤫 **Anônimo:** <#{}>\n\
          📊 **Meta:** <#{}>\n\
          📑 **Logs:** <#{}>\n\
-         ✅ **Aprovação:** <#{}>",
+         ✅ **Aprovação:** <#{}>
+         📈 **Resultado da Meta:** <#{}>\n",
             individual_channel_id.get(),
             anonimo_channel_id.get(),
             meta_channel_id.get(),
             logs_channel_id.get(),
-            approval_channel_id.get()
+            approval_channel_id.get(),
+            resultadometa_channel_id.get()
         ))
         .colour(Colour::from_rgb(144, 238, 144))
         .timestamp(Timestamp::now());
@@ -93,6 +97,12 @@ pub fn register() -> CreateCommand {
                 CommandOptionType::Channel,
                 "approval",
                 "Canal para aprovações",
+            )
+            .required(true),
+            CreateCommandOption::new(
+                CommandOptionType::Channel,
+                "resultadometa",
+                "Canal para o resultado das meta",
             )
             .required(true),
         ])

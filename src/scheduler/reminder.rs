@@ -34,7 +34,7 @@ pub async fn setup_cron_jobs(ctx: Arc<Context>) {
     let job02 = JobBuilder::new()
         .with_timezone(Sao_Paulo)
         .with_cron_job_type()
-        .with_schedule("0 47 19 * * Mon")
+        .with_schedule("0 0 18 * * Mon")
         .unwrap()
         .with_run_async(Box::new(move |_uuid, _l| {
             let ctx = ctx_clone_2.clone();
@@ -109,14 +109,14 @@ pub async fn setup_cron_jobs(ctx: Arc<Context>) {
 
                     if value >= current_meta {
                         completos.push(format!(
-                            "+ {pos}. {username} | ✅ R$ {formatted_value} sujo"
+                            "+ {pos}. {username} | ✅ R$ {formatted_value} sujo ({value})"
                         ));
                     } else if value > 0 {
                         incompletos.push(format!(
-                            "[2;33m! {pos}. {username} | ⚠️ R$ {formatted_value} sujo[0m"
+                            "[2;33m! {pos}. {username} | ⚠️ R$ {formatted_value} sujo ({value}) [0m"
                         ));
                     } else {
-                        sem_entrega.push(format!("- {pos}. {username} | ❌ R$ 0 sujo"));
+                        sem_entrega.push(format!("- {pos}. {username} | ❌ R$ 0 sujo "));
                     }
 
                     i += 1;
@@ -160,7 +160,7 @@ pub async fn setup_cron_jobs(ctx: Arc<Context>) {
                 ));
 
                 let builder = CreateMessage::default().content(message);
-                if let Err(e) = ChannelId::new(channels.meta_channel_id)
+                if let Err(e) = ChannelId::new(channels.results_channel_id)
                     .send_message(&ctx.http, builder)
                     .await
                 {

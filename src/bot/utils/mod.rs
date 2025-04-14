@@ -42,6 +42,17 @@ pub fn get_last_monday_at_18() -> chrono::DateTime<chrono_tz::Tz> {
     let now_br = chrono::Utc::now().with_timezone(&chrono_tz::America::Sao_Paulo);
     let weekday = now_br.weekday();
 
+    if weekday == Weekday::Mon && now_br.hour() < 18 {
+        let subtract = now_br - Duration::days(7);
+        return subtract
+            .with_hour(18)
+            .expect("Erro ao definir a hora para 18")
+            .with_minute(0)
+            .expect("Erro ao definir os minutos para 0")
+            .with_second(0)
+            .expect("Erro ao definir os segundos para 0");
+    }
+
     let days_to_subtract = match weekday {
         Weekday::Mon => 0,
         _ => weekday.num_days_from_monday() as i64,
