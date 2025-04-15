@@ -1,7 +1,8 @@
 use super::{models::client::ClientData, utils};
 use serenity::all::{
-    ChannelId, Colour, ComponentInteraction, Context, CreateEmbed, CreateInteractionResponse,
-    CreateInteractionResponseMessage, CreateMessage, InteractionResponseFlags, Timestamp,
+    ButtonStyle, ChannelId, Colour, ComponentInteraction, Context, CreateActionRow, CreateButton,
+    CreateEmbed, CreateInteractionResponse, CreateInteractionResponseMessage, CreateMessage,
+    EditMessage, InteractionResponseFlags, Timestamp,
 };
 
 pub async fn run(ctx: Context, interaction: ComponentInteraction, status: &str) {
@@ -51,6 +52,30 @@ pub async fn run(ctx: Context, interaction: ComponentInteraction, status: &str) 
         .create_response(&ctx.http, CreateInteractionResponse::Message(reply))
         .await;
 
+    let aprove = CreateButton::new("aprove")
+        .label("Aprovar")
+        .style(ButtonStyle::Success)
+        .disabled(true);
+
+    let deny = CreateButton::new("deny")
+        .label("Recusar")
+        .style(ButtonStyle::Danger)
+        .disabled(true);
+
+    let action_row = Vec::from([CreateActionRow::Buttons(vec![aprove, deny])]);
+
+    let mut message = interaction.message.clone();
+
+    let message_embed = CreateEmbed::default()
+        .description(message.embeds[0].description.clone().unwrap())
+        .colour(message.embeds[0].colour.unwrap())
+        .title(message.embeds[0].title.clone().unwrap())
+        .timestamp(message.embeds[0].timestamp.unwrap());
+
+    let message_builder = EditMessage::new()
+        .embed(message_embed)
+        .components(action_row);
+
     let Ok(user_channel_id) = repo.get_user_channel(meta.user_id as u64).await else {
         eprintln!("❌ - Failed to fetch user channel.");
         return;
@@ -65,6 +90,11 @@ pub async fn run(ctx: Context, interaction: ComponentInteraction, status: &str) 
         eprintln!("❌ - Failed to fetch current meta.");
         return;
     };
+
+    if let Err(err) = message.edit(&ctx.http, message_builder).await {
+        eprintln!("❌ - Failed to edit message: {}", err);
+        return;
+    }
 
     let Ok(metas) = repo.get_user_approved_weekly(meta.user_id).await else {
         eprintln!("❌ - Failed to fetch approved metas.");
@@ -159,10 +189,5 @@ pub async fn run(ctx: Context, interaction: ComponentInteraction, status: &str) 
         )
     };
 
-    utils::logs::send_log(
-        &ctx,
-        logs_message,
-        channels.logs_channel_id,
-    )
-    .await;
+    utils::logs::send_log(&ctx, logs_message, channels.logs_channel_id).await;
 }
